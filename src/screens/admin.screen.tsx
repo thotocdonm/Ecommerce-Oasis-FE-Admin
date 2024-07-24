@@ -21,6 +21,7 @@ const AdminPage = () => {
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
+    const [activeMenu, setActiveMenu] = useState<string>('');
 
     const handleLogin = async () => {
         const data = { username: 'user@gmail.com', password: '123456' }
@@ -42,7 +43,17 @@ const AdminPage = () => {
     }, [])
 
 
+    console.log(window.location.pathname)
+    useEffect(() => {
+        if (window.location.pathname.includes('/users')) {
+            setActiveMenu('users')
+        }
 
+        if (window.location.pathname.includes('/dashboard')) {
+            setActiveMenu('dashboard')
+        }
+
+    }, [])
 
     return (
         <>
@@ -60,13 +71,14 @@ const AdminPage = () => {
                         inlineIndent={50}
                         theme="dark"
                         mode="inline"
-                        defaultSelectedKeys={['1']}
-
+                        defaultSelectedKeys={['dashboard']}
+                        onClick={(e) => setActiveMenu(e.key)}
+                        selectedKeys={[activeMenu]}
                     >
-                        <Menu.Item key={'1'} icon={<DashboardOutlined />} >
-                            <Link to={'/'}>Dashboard</Link>
+                        <Menu.Item key={'dashboard'} icon={<DashboardOutlined />} >
+                            <Link to={'/dashboard'}>Dashboard</Link>
                         </Menu.Item>
-                        <Menu.Item key={'2'} icon={<UserOutlined />}>
+                        <Menu.Item key={'users'} icon={<UserOutlined />}>
                             <Link to={'/users'}>Users</Link>
                         </Menu.Item>
                         <Menu.Item key={'3'} icon={<UploadOutlined />}>
