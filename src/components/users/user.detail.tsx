@@ -62,13 +62,12 @@ const UserDetail = (props: IProps) => {
             span: 3
         },
     ];
-    console.log(dataDetail)
     return (
         <>
             <Drawer
                 closable
                 destroyOnClose
-                title={<p>Loading Drawer</p>}
+                title={<p>View Detail User</p>}
                 placement="right"
                 open={openDetail}
                 loading={loadingDetail}

@@ -1,10 +1,13 @@
 
 import React, { useEffect, useState } from 'react';
-import { Table } from 'antd';
-import type { TableColumnsType, TableProps } from 'antd';
-import { fetchUserWithPaginate } from '../../api/api';
+import { Button, Popconfirm, Table, message } from 'antd';
+import type { PopconfirmProps, TableColumnsType, TableProps } from 'antd';
+import { deleteUser, fetchUserWithPaginate } from '../../api/api';
 import { useSearchParams } from 'react-router-dom';
 import UserDetail from './user.detail';
+import { DeleteOutlined, EditOutlined, UserAddOutlined } from '@ant-design/icons';
+import UserUpdateModal from './user.update.modal';
+import UserAddNewModal from './user.add.modal';
 
 interface DataType {
     _id: string;
@@ -20,12 +23,30 @@ interface DataType {
 
 const UserTable = () => {
     const [current, setCurrent] = useState<number>(1);
-    const [pageSize, setPageSize] = useState<number>(3);
+    const [pageSize, setPageSize] = useState<number>(5);
     const [total, setTotal] = useState<number>(0);
     const [usersData, setUsersData] = useState<IUsersData[]>([])
     const [openDetail, setOpenDetail] = React.useState<boolean>(false);
     const [loadingDetail, setLoadingDetail] = React.useState<boolean>(true);
     const [dataDetail, setDataDetail] = useState({})
+    const [dataUpdate, setDataUpdate] = useState({})
+
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [isAddNewModalOpen, setIsAddNewModalOpen] = useState(false);
+
+    const confirm = async (id: string) => {
+        const res: IBackendRes<any> = await deleteUser(id);
+        if (res && res.data) {
+            message.success('Delete user success')
+            fetchUser();
+            return
+        }
+        else {
+            message.error(res.error)
+        }
+
+    };
+
 
     const columns: TableColumnsType<DataType> = [
         {
@@ -58,6 +79,32 @@ const UserTable = () => {
         {
             title: 'Role',
             dataIndex: 'role',
+        },
+        {
+            title: 'Actions',
+            render: (value, record, index) => {
+                return (
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                        <EditOutlined
+                            style={{ fontSize: '20px', color: 'orange', cursor: 'pointer' }}
+                            onClick={() => {
+                                setIsUpdateModalOpen(true)
+                                setDataUpdate(record)
+                            }}
+                        />
+                        <Popconfirm
+                            title="Delete a user"
+                            description={`Are you sure to delete user : ${record.email}`}
+                            onConfirm={() => confirm(record._id)}
+                            okText="Yes"
+                            cancelText="No"
+                        >
+                            <DeleteOutlined style={{ fontSize: '20px', color: 'red', cursor: 'pointer' }} />
+                        </Popconfirm>
+
+                    </div>
+                )
+            },
         },
     ];
 
@@ -95,6 +142,24 @@ const UserTable = () => {
         }, 2000);
     };
 
+    const renderHeader = () => {
+        return (
+            <div style={{ display: "flex", alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                    Table Users
+                </div>
+                <div>
+                    <Button
+                        type='primary'
+                        onClick={() => setIsAddNewModalOpen(true)}
+                    >
+                        <UserAddOutlined />Add New User
+                    </Button>
+                </div>
+            </div>
+        )
+    }
+
     useEffect(() => {
         fetchUser();
     }, [current, pageSize])
@@ -105,6 +170,7 @@ const UserTable = () => {
                     columns={columns}
                     dataSource={usersData}
                     onChange={onChange}
+                    title={renderHeader}
                     pagination={{
                         total: total,
                         current: current,
@@ -126,6 +192,18 @@ const UserTable = () => {
                 loadingDetail={loadingDetail}
                 setLoadingDetail={setLoadingDetail}
                 dataDetail={dataDetail!}
+            />
+            <UserUpdateModal
+                isUpdateModalOpen={isUpdateModalOpen}
+                setIsUpdateModalOpen={setIsUpdateModalOpen}
+                dataUpdate={dataUpdate}
+                setDataUpdate={setDataUpdate}
+                fetchUser={fetchUser}
+            />
+            <UserAddNewModal
+                isAddNewModalOpen={isAddNewModalOpen}
+                setIsAddNewModalOpen={setIsAddNewModalOpen}
+                fetchUser={fetchUser}
             />
         </>
     )
