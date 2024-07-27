@@ -1,34 +1,40 @@
 
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Popconfirm, Table, message } from 'antd';
+import { Button, ColorPicker, Input, Popconfirm, Table, message } from 'antd';
 import type { PopconfirmProps, TableColumnsType, TableProps } from 'antd';
-import { deleteUser, fetchUserWithPaginate } from '../../api/api';
+import { deleteUser, fetchProductsWithPaginate, fetchUserWithPaginate } from '../../api/api';
 import { useSearchParams } from 'react-router-dom';
-import UserDetail from './user.detail';
 import { ClearOutlined, DeleteOutlined, EditOutlined, SearchOutlined, UserAddOutlined } from '@ant-design/icons';
-import UserUpdateModal from './user.update.modal';
-import UserAddNewModal from './user.add.modal';
 import Search from 'antd/es/input/Search';
+import ProductDetail from './product.detail';
+import ProductAddNewModal from './product.add.modal';
 
 interface DataType {
     _id: string;
     name: string;
-    email: string
-    role: string;
-    address: string;
+    price: number
+    colors: IColor[];
+    size: string[];
+}
+
+interface IColor {
+
+    "colorName": string,
+    "colorCode": string,
+    "image": string[]
+
 }
 
 
 
 
-
-const UserTable = () => {
+const ProductTable = () => {
     const [current, setCurrent] = useState<number>(1);
     const [pageSize, setPageSize] = useState<number>(5);
     const [total, setTotal] = useState<number>(0);
-    const [usersData, setUsersData] = useState<IUsersData[]>([])
+    const [productsData, setProductsData] = useState<IProductsData[]>([])
     const [openDetail, setOpenDetail] = React.useState<boolean>(false);
-    const [loadingDetail, setLoadingDetail] = React.useState<boolean>(true);
+    const [loadingDetail, setLoadingDetail] = React.useState<boolean>(false);
     const [dataDetail, setDataDetail] = useState({})
     const [dataUpdate, setDataUpdate] = useState({})
     const [searchQuery, setSearchQuery] = useState<string>();
@@ -40,7 +46,7 @@ const UserTable = () => {
         const res: IBackendRes<any> = await deleteUser(id);
         if (res && res.data) {
             message.success('Delete user success')
-            fetchUser();
+            fetchProduct();
             return
         }
         else {
@@ -58,9 +64,9 @@ const UserTable = () => {
                 return (
                     <>
                         <a href="#" onClick={() => {
-                            showDetail()
                             setDataDetail(record)
-                        }}>{record._id}</a>
+                            setOpenDetail(true)
+                        }} >{record._id}</a>
                     </>
                 )
 
@@ -71,16 +77,61 @@ const UserTable = () => {
             dataIndex: 'name',
         },
         {
-            title: 'Email',
-            dataIndex: 'email',
+            title: 'Price',
+            dataIndex: 'price',
+            render: (value, record, index) => {
+                return (
+                    <>
+                        {value}$
+                    </>
+                )
+            },
         },
         {
-            title: 'Address',
-            dataIndex: 'address',
+            title: 'Available Colors',
+            dataIndex: 'colors',
+            render: (value, record, index) => {
+                return (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        flexDirection: 'row'
+                    }}>
+                        {record.colors?.map((item, index) => {
+                            return (
+                                <div key={`${item.colorCode} - ${index}`}
+                                >
+                                    <ColorPicker defaultValue={`${item.colorCode}`} disabled />
+                                </div>
+                            )
+                        })}
+                    </div>
+                )
+            },
         },
         {
-            title: 'Role',
-            dataIndex: 'role',
+            title: 'Available Size',
+            dataIndex: 'size',
+            render: (value, record, index) => {
+                return (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        flexDirection: 'row',
+                        flexWrap: 'wrap'
+                    }} >
+                        {record.size?.map((item) => {
+                            return (
+                                <div key={`${item} - ${index}`}>
+                                    {item}
+                                </div>
+                            )
+                        })}
+                    </div>
+                )
+            },
         },
         {
             title: 'Actions',
@@ -96,7 +147,7 @@ const UserTable = () => {
                         />
                         <Popconfirm
                             title="Delete a user"
-                            description={`Are you sure to delete user : ${record.email}`}
+                            // description={`Are you sure to delete user : ${record.email}`}
                             onConfirm={() => confirm(record._id)}
                             okText="Yes"
                             cancelText="No"
@@ -111,17 +162,17 @@ const UserTable = () => {
     ];
 
 
-    const fetchUser = async () => {
+    const fetchProduct = async () => {
         let query = `current=${current}&pageSize=${pageSize}`
         if (searchQuery) {
             query += `&name=/${searchQuery}/i`
         }
-        let res: IBackendRes<IBackendResFetchUserWithPaginate> = await fetchUserWithPaginate(query);
+        let res: IBackendRes<IBackendResPaginate<IProductsData[]>> = await fetchProductsWithPaginate(query);
         if (res && res.data) {
             setCurrent(res.data.meta.current)
             setPageSize(res.data.meta.pageSize)
             setTotal(res.data.meta.total)
-            setUsersData(res.data.result)
+            setProductsData(res.data.result)
         }
         console.log(res)
     }
@@ -151,7 +202,7 @@ const UserTable = () => {
         return (
             <div style={{ display: "flex", alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                    Table Users
+                    Table Products
                 </div>
                 <div style={{ display: "flex", alignItems: 'center', gap: '10px' }}>
                     <Search
@@ -171,7 +222,7 @@ const UserTable = () => {
                         type='primary'
                         onClick={() => setIsAddNewModalOpen(true)}
                     >
-                        <UserAddOutlined />Add New User
+                        <UserAddOutlined />Add New Product
                     </Button>
                 </div>
             </div>
@@ -179,14 +230,14 @@ const UserTable = () => {
     }
 
     useEffect(() => {
-        fetchUser();
+        fetchProduct();
     }, [current, pageSize, searchQuery])
     return (
         <>
             <div>
                 <Table
                     columns={columns}
-                    dataSource={usersData}
+                    dataSource={productsData}
                     onChange={onChange}
                     title={renderHeader}
                     pagination={{
@@ -204,27 +255,20 @@ const UserTable = () => {
 
                 />
             </div>
-            <UserDetail
+            <ProductDetail
                 openDetail={openDetail}
                 setOpenDetail={setOpenDetail}
                 loadingDetail={loadingDetail}
                 setLoadingDetail={setLoadingDetail}
                 dataDetail={dataDetail!}
             />
-            <UserUpdateModal
-                isUpdateModalOpen={isUpdateModalOpen}
-                setIsUpdateModalOpen={setIsUpdateModalOpen}
-                dataUpdate={dataUpdate}
-                setDataUpdate={setDataUpdate}
-                fetchUser={fetchUser}
-            />
-            <UserAddNewModal
+            <ProductAddNewModal
                 isAddNewModalOpen={isAddNewModalOpen}
                 setIsAddNewModalOpen={setIsAddNewModalOpen}
-                fetchUser={fetchUser}
+                fetchProduct={fetchProduct}
             />
         </>
     )
 }
 
-export default UserTable
+export default ProductTable

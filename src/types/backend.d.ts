@@ -5,6 +5,17 @@ interface IBackendRes<T> {
     "error"?: string
 }
 
+interface IBackendResPaginate<T> {
+    "meta": {
+        "current": number,
+        "pageSize": number,
+        "pages": number,
+        "total": number
+    },
+    "result": T
+
+}
+
 interface IBackendResLogin {
     "access_token": string,
     "refresh_token": string,
@@ -51,5 +62,31 @@ interface IUsersData {
     "createdAt"?: string,
     "updatedAt"?: string,
     "__v"?: number,
+}
+
+interface IProductsData {
+    "_id": string,
+    "name": string,
+    "price": number,
+    "colors":
+    {
+        "colorName": string,
+        "colorCode": string,
+        "image": string[]
+    }[],
+    "size": string[]
+    "quantity": number,
+    "sold": number,
+    "type": string,
+    "style": string,
+    "deletedAt": string,
+    "createdBy": {
+        "_id": string,
+        "email": string
+    },
+    "isDeleted": boolean,
+    "createdAt": string,
+    "updatedAt": string,
+    "__v": number
 }
 

@@ -7,6 +7,7 @@ import AdminPage from "./screens/admin.screen";
 import UserTable from "./components/users/user.table";
 import UsersPage from "./screens/user.screen";
 import DashboardPage from "./screens/dashboard.screen";
+import ProductsPage from "./screens/product.screen";
 
 const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       {
         path: '/dashboard',
         element: <DashboardPage />
+      },
+      {
+        path: '/products',
+        element: <ProductsPage />
       }
     ]
   },

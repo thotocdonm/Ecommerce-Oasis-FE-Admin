@@ -3,6 +3,7 @@ import {
     DashboardOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
+    ProductOutlined,
     UploadOutlined,
     UserOutlined,
     VideoCameraOutlined,
@@ -81,8 +82,8 @@ const AdminPage = () => {
                         <Menu.Item key={'users'} icon={<UserOutlined />}>
                             <Link to={'/users'}>Users</Link>
                         </Menu.Item>
-                        <Menu.Item key={'3'} icon={<UploadOutlined />}>
-                            Option 3
+                        <Menu.Item key={'products'} icon={<ProductOutlined />}>
+                            <Link to={'/products'}>Products</Link>
                         </Menu.Item>
                     </Menu>
                 </Sider>

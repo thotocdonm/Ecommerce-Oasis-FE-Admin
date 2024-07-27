@@ -34,3 +34,11 @@ export const deleteUser = async (id: string) => {
     }
     else return res.error
 }
+
+export const fetchProductsWithPaginate = async (query: string) => {
+    let res: any = await axios.get(`products/?${query}`)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
