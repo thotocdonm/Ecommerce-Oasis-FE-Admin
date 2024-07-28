@@ -1,6 +1,9 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { Button, Checkbox, Col, Divider, Form, FormProps, Input, InputNumber, Modal, Row, Select, SelectProps, message } from 'antd';
-import { createNewUser, updateUser } from '../../api/api';
+import { Button, Checkbox, Col, Collapse, Divider, Form, FormProps, GetProp, Image, Input, InputNumber, Modal, Row, Select, SelectProps, Upload, UploadFile, UploadProps, message } from 'antd';
+import { createNewUser, updateUser, uploadFile } from '../../api/api';
+import { PlusOutlined } from '@ant-design/icons';
+import { RcFile } from 'antd/es/upload';
+import { v4 as uuidv4 } from "uuid";
 
 interface IProps {
     isAddNewModalOpen: boolean,
@@ -8,10 +11,24 @@ interface IProps {
     fetchProduct: () => void
 }
 
+type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
+
+const getBase64 = (file: FileType): Promise<string> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (error) => reject(error);
+    });
+
 
 const ProductAddNewModal = (props: IProps) => {
 
     const { isAddNewModalOpen, setIsAddNewModalOpen, fetchProduct } = props
+    const [selectedColors, setSelectedColors] = useState<string[]>([]);
+    const [selectedColorFile, setSelectedColorFile] = useState('');
+    const [previewOpen, setPreviewOpen] = useState(false);
+    const [previewImage, setPreviewImage] = useState('');
     const [form] = Form.useForm();
 
     const showModal = () => {
@@ -33,29 +50,9 @@ const ProductAddNewModal = (props: IProps) => {
         quantity?: number;
         style?: string[]
         type?: string[]
+        color?: string[]
 
 
-    };
-
-    const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
-        // const res: IBackendRes<any> = await createNewUser(values);
-        // if (res && res.data) {
-        //     fetchProduct();
-        //     message.success('Create product success')
-        //     handleCancel()
-        //     return
-        // }
-        // else {
-        //     message.error(res.error)
-        //     return
-        // }
-
-        console.log('ok ', values)
-
-    };
-
-    const handleChange = (value: string[]) => {
-        console.log(`selected ${value}`);
     };
 
     const sizeOptions: SelectProps['options'] = [
@@ -126,6 +123,209 @@ const ProductAddNewModal = (props: IProps) => {
             value: 'Jeans'
         },
     ]
+
+    const colorOptions: SelectProps['options'] = [
+        {
+            label: 'Red',
+            value: 'Red//#FF0000'
+        },
+        {
+            label: 'Blue',
+            value: 'Blue//#0000FF'
+        },
+        {
+            label: 'Green',
+            value: 'Green//#00FF00'
+        },
+        {
+            label: 'Black',
+            value: 'Black//#00FF00'
+        },
+        {
+            label: 'White',
+            value: 'White//#FFFFFF'
+        },
+    ]
+
+
+    const [fileList, setFileList] = useState<UploadFile[]>([])
+
+    const getImageUrl = (color: string) => {
+        let array = fileList.map((item, index) => {
+            return fileList[index]?.name.includes(color) ? fileList[index].name : ''
+        })
+        return array
+    }
+
+    const buildColorData = (colorsArray: string[], fileList: UploadFile[]) => {
+        // Parse color names and codes
+        const colorMap = colorsArray.reduce((acc, color) => {
+            const [colorName, colorCode] = color.split('//');
+            //@ts-ignore
+            acc[colorName] = {
+                colorName,
+                colorCode,
+                image: []
+            };
+            return acc;
+        }, {});
+
+        // Map images to colors
+        fileList.forEach(file => {
+            const start = file.name.indexOf('-!') + 2; // Start position of color name
+            const end = file.name.indexOf('!-', start); // End position of color name
+
+            const colorName = file.name.substring(start, end); // Extract color name from filename
+            console.log(colorName)
+            //@ts-ignore
+            if (colorMap[colorName]) {
+                console.log('ok ruin')
+                const parts = file?.url?.split('/');
+                const imageUrl = parts?.pop();
+                //@ts-ignore
+                colorMap[colorName].image.push(imageUrl); // Add image URL
+            }
+        });
+
+        // Convert colorMap to array format
+        return Object.values(colorMap);
+    };
+
+
+    const onFinish: FormProps<FieldType>['onFinish'] = async (values) => {
+        // const res: IBackendRes<any> = await createNewUser(values);
+        // if (res && res.data) {
+        //     fetchProduct();
+        //     message.success('Create product success')
+        //     handleCancel()
+        //     return
+        // }
+        // else {
+        //     message.error(res.error)
+        //     return
+        // }
+
+        const { name, price, size, quantity, type, style, color } = values
+
+        console.log(fileList, color)
+        const colorsUrl = color?.map((item, index) => {
+            const keyword = `!${item.split('//')[0]}!`
+            return fileList[index]?.name.includes(keyword) ? fileList[index].name : ''
+        })
+
+        let imageArray: string[] = [];
+
+        // const colorsData = color?.map((item, index) => {
+        //     return {
+        //         colorName: item.split('//')[0],
+        //         colorcode: item.split('//')[1],
+        //         image: getImageUrl(item)
+        //     }
+        // })
+
+        const colorsData = buildColorData(color!, fileList);
+
+        const data = {
+            name,
+            price,
+            size,
+            quantity,
+            type,
+            style,
+            color: colorsData
+        }
+
+        console.log('check final data', data)
+
+    };
+
+    const handleChange = (value: string[]) => {
+        console.log(`selected ${value}`);
+    };
+
+    const handleChangeColor = (value: string[]) => {
+        const colors = value.map((color, index) => {
+            const words = color.split('//');
+            return words[0];
+        })
+        setSelectedColors(colors);
+        const colorsHex = value.map((color, index) => {
+            const words = color.split('//');
+            return words[1];
+        })
+        console.log(colors)
+        console.log(colorsHex)
+        console.log(value);
+    };
+
+    const handlePreview = async (file: UploadFile) => {
+        if (!file.url && !file.preview) {
+            file.preview = await getBase64(file.originFileObj as FileType);
+        }
+
+        setPreviewImage(file.url || (file.preview as string));
+        setPreviewOpen(true);
+    };
+
+    //@ts-ignore
+    const handleChangeFile = ({ file, fileList: newFileList }) => {
+        console.log('check change file', file)
+
+    }
+
+    const uploadButton = (
+        <button style={{ border: 0, background: 'none' }} type="button">
+            <PlusOutlined />
+            <div style={{ marginTop: 8 }}>Upload</div>
+        </button>
+    );
+
+    const uploadImage = async (info: any) => {
+        const { file, onSuccess, onError } = info
+        const data = new FormData();
+        data.append('fileUpload', file)
+        const res: IBackendRes<any> = await uploadFile(data);
+        console.log(res)
+        if (res && res.data) {
+            setFileList((fileList) => [...fileList, {
+                name: res.data.fileName,
+                uid: file.uid,
+                url: `${import.meta.env.VITE_BACKEND_URL}/images/products/${res.data.fileName}`
+            }])
+            onSuccess('ok')
+        } else {
+            onError('Something wrong')
+        }
+        console.log('check custom request', file)
+
+    }
+
+    const handleBeforeUpload = (item: string) => (file: RcFile) => {
+        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng) {
+            message.error('You can only upload JPG/PNG file!');
+            return isJpgOrPng;
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+            message.error('Image must smaller than 2MB!');
+            return isJpgOrPng && isLt2M;
+        }
+
+        // custom rename file name
+        const newName = generateFileName(file.name, item)
+        // replace origin File
+        const newFile = new File([file], newName, { type: file.type })
+        return newFile
+    }
+
+    const generateFileName = (originalName: string, color: string) => {
+        const name = originalName.split('.')[0]
+        const extension = originalName.split('.').pop()
+        return `${name}-${color}.${extension}`
+    }
+
+    console.log('Check file List', fileList)
     return (
         <>
             <Modal
@@ -198,7 +398,7 @@ const ProductAddNewModal = (props: IProps) => {
                                 label="Style"
                                 labelCol={{ span: 24 }}
                                 name='style'
-                                rules={[{ required: true, message: "Please input product's size!" }]}
+                                rules={[{ required: true, message: "Please input product's style!" }]}
                             >
                                 <Select
 
@@ -215,7 +415,7 @@ const ProductAddNewModal = (props: IProps) => {
                                 label="Type"
                                 labelCol={{ span: 24 }}
                                 name="type"
-                                rules={[{ required: true, message: "Please input product's size!" }]}
+                                rules={[{ required: true, message: "Please input product's type!" }]}
                             >
                                 <Select
 
@@ -227,6 +427,68 @@ const ProductAddNewModal = (props: IProps) => {
                                 />
                             </Form.Item>
                         </Col>
+                        <Col span={12}>
+                            <Form.Item<FieldType>
+                                label="Color"
+                                labelCol={{ span: 24 }}
+                                name="color"
+                                rules={[{ required: true, message: "Please input product's color!" }]}
+                            >
+                                <Select
+                                    mode='multiple'
+                                    allowClear
+                                    style={{ width: '100%' }}
+                                    placeholder="Please select"
+                                    onChange={handleChangeColor}
+                                    options={colorOptions}
+                                />
+                            </Form.Item>
+                        </Col>
+                        {selectedColors && selectedColors.map((item, index) => {
+                            const itemList: any = [];
+                            fileList.forEach((file, index) => {
+                                if (fileList[index].name.search(item) !== -1) {
+                                    itemList.push(fileList[index])
+                                }
+                            })
+                            console.log(item)
+                            return (
+                                <Col span={24}>
+                                    <Form.Item
+                                        label={`Images for ${item} color`}
+                                        labelCol={{ span: 24 }}
+                                        name="colorImage"
+                                    >
+                                        { }
+                                        <Upload
+                                            action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+                                            listType="picture-card"
+                                            fileList={itemList}
+                                            onPreview={handlePreview}
+                                            onChange={handleChangeFile}
+                                            customRequest={uploadImage}
+                                            beforeUpload={handleBeforeUpload(`!${item}!`)}
+                                            multiple={true}
+                                        >
+                                            {itemList.length >= 8 ? null : uploadButton}
+                                        </Upload>
+                                        {previewImage && (
+                                            <Image
+                                                wrapperStyle={{ display: 'none' }}
+                                                preview={{
+                                                    visible: previewOpen,
+                                                    onVisibleChange: (visible) => setPreviewOpen(visible),
+                                                    afterOpenChange: (visible) => !visible && setPreviewImage(''),
+                                                }}
+                                                src={previewImage}
+                                            />
+                                        )}
+                                    </Form.Item>
+
+
+                                </Col>
+                            )
+                        })}
 
                     </Row>
 

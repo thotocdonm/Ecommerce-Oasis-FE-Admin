@@ -42,3 +42,23 @@ export const fetchProductsWithPaginate = async (query: string) => {
     }
     else return res.error
 }
+
+export const uploadMultipleFile = async (files: File[]) => {
+    let res: any = await axios.post(`files/multipleUpload`, files)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+
+export const uploadFile = async (file: any) => {
+    let res: any = await axios.post(`files/upload`, file, {
+        headers: {
+            'folder_type': 'products'
+        }
+    })
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
