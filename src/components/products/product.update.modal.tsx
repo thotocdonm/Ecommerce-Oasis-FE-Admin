@@ -1,14 +1,16 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Button, Checkbox, Col, Collapse, Divider, Form, FormProps, GetProp, Image, Input, InputNumber, Modal, Row, Select, SelectProps, Upload, UploadFile, UploadProps, message } from 'antd';
-import { addNewProduct, createNewUser, updateUser, uploadFile } from '../../api/api';
+import { addNewProduct, createNewUser, updateAProduct, updateUser, uploadFile } from '../../api/api';
 import { PlusOutlined } from '@ant-design/icons';
 import { RcFile } from 'antd/es/upload';
 import { v4 as uuidv4 } from "uuid";
 
 interface IProps {
-    isAddNewModalOpen: boolean,
-    setIsAddNewModalOpen: Dispatch<SetStateAction<boolean>>
-    fetchProduct: () => void
+    isUpdateModalOpen: boolean,
+    setIsUpdateModalOpen: Dispatch<SetStateAction<boolean>>
+    fetchProduct: () => void,
+    dataUpdate: any,
+    setDataUpdate: Dispatch<SetStateAction<Object>>
 }
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
@@ -22,24 +24,24 @@ const getBase64 = (file: FileType): Promise<string> =>
     });
 
 
-const ProductAddNewModal = (props: IProps) => {
+const ProductUpdateModal = (props: IProps) => {
 
-    const { isAddNewModalOpen, setIsAddNewModalOpen, fetchProduct } = props
+    const { isUpdateModalOpen, setIsUpdateModalOpen, fetchProduct, dataUpdate, setDataUpdate } = props
     const [selectedColors, setSelectedColors] = useState<string[]>([]);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [form] = Form.useForm();
     const [fileList, setFileList] = useState<UploadFile[]>([])
 
-
     const handleOk = () => {
         form.submit();
     };
 
     const handleCancel = () => {
-        setIsAddNewModalOpen(false);
+        setDataUpdate({})
         form.resetFields();
         setFileList([])
+        setIsUpdateModalOpen(false);
     };
 
     type FieldType = {
@@ -146,6 +148,7 @@ const ProductAddNewModal = (props: IProps) => {
         },
     ]
 
+
     const buildColorData = (colorsArray: string[], fileList: UploadFile[]) => {
         // Parse color names and codes
         const colorMap = colorsArray.reduce((acc, color) => {
@@ -208,10 +211,10 @@ const ProductAddNewModal = (props: IProps) => {
 
 
 
-        const res: IBackendRes<any> = await addNewProduct(data);
+        const res: IBackendRes<any> = await updateAProduct(data, dataUpdate?._id);
         if (res && res.data) {
             fetchProduct();
-            message.success('Create product success')
+            message.success('Update product success')
             handleCancel()
             return
         }
@@ -232,13 +235,6 @@ const ProductAddNewModal = (props: IProps) => {
             return words[0];
         })
         setSelectedColors(colors);
-        const colorsHex = value.map((color, index) => {
-            const words = color.split('//');
-            return words[1];
-        })
-
-
-
     };
 
     const handlePreview = async (file: UploadFile) => {
@@ -308,12 +304,39 @@ const ProductAddNewModal = (props: IProps) => {
         return `${name}-${color}.${extension}`
     }
 
-
+    useEffect(() => {
+        const formData = {
+            ...dataUpdate,
+            color: dataUpdate?.colors?.map((color: any) => `${color.colorName}//${color.colorCode}`)
+        }
+        form.setFieldsValue(formData)
+        const colors = dataUpdate?.colors?.map((item: any, index: any) => {
+            return `${item.colorName}`
+        })
+        const colorsFileList: UploadFile[] = [];
+        dataUpdate?.colors?.forEach((color: any) => {
+            // Loop through each image in the image array
+            color?.image?.forEach((image: any) => {
+                // Push each image URL into the allImages array
+                colorsFileList.push(
+                    {
+                        name: image,
+                        uid: uuidv4(),
+                        url: `${import.meta.env.VITE_BACKEND_URL}/images/products/${image}`
+                    }
+                );
+            });
+        });
+        setFileList(colorsFileList)
+        setSelectedColors(colors)
+    }, [dataUpdate])
+    console.log('check data Update', dataUpdate)
+    console.log('check file List', fileList)
     return (
         <>
             <Modal
-                title="Add a new product"
-                open={isAddNewModalOpen}
+                title="Update a product"
+                open={isUpdateModalOpen}
                 onOk={handleOk}
                 onCancel={handleCancel}
                 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
@@ -424,6 +447,7 @@ const ProductAddNewModal = (props: IProps) => {
                                     placeholder="Please select"
                                     onChange={handleChangeColor}
                                     options={colorOptions}
+                                    defaultValue={selectedColors}
                                 />
                             </Form.Item>
                         </Col>
@@ -452,6 +476,7 @@ const ProductAddNewModal = (props: IProps) => {
                                             customRequest={uploadImage}
                                             beforeUpload={handleBeforeUpload(`!${item}!`)}
                                             multiple={true}
+                                            defaultFileList={itemList}
                                         >
                                             {itemList.length >= 8 ? null : uploadButton}
                                         </Upload>
@@ -480,4 +505,4 @@ const ProductAddNewModal = (props: IProps) => {
         </>
     );
 }
-export default ProductAddNewModal
+export default ProductUpdateModal

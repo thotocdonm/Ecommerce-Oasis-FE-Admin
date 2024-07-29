@@ -123,11 +123,11 @@ const UserTable = () => {
             setTotal(res.data.meta.total)
             setUsersData(res.data.result)
         }
-        console.log(res)
+
     }
 
     const onChange: TableProps<DataType>['onChange'] = (pagination, filters, sorter, extra) => {
-        console.log('params', pagination, filters, sorter, extra);
+
         if (pagination && pagination.current !== current) {
             setCurrent(pagination.current!);
         }

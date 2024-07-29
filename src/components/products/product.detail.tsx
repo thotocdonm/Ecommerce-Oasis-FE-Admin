@@ -131,7 +131,7 @@ const ProductDetail = (props: IProps) => {
                     }
                 )
             })
-            console.log('check image list: ', item.image)
+
             items.push({
                 key: `${index}`,
                 label: `Images for ${item.colorName} color `,

@@ -27,7 +27,7 @@ const AdminPage = () => {
     const handleLogin = async () => {
         const data = { username: 'user@gmail.com', password: '123456' }
         const res: IBackendRes<IBackendResLogin> = await axios.post('/auth/login', data);
-        console.log(res)
+
         if (res && res.data) {
             localStorage.setItem('access_token', res.data.access_token);
             message.success('Login success')
@@ -44,7 +44,7 @@ const AdminPage = () => {
     }, [])
 
 
-    console.log(window.location.pathname)
+
     useEffect(() => {
         if (window.location.pathname.includes('/users')) {
             setActiveMenu('users')
@@ -52,6 +52,10 @@ const AdminPage = () => {
 
         if (window.location.pathname.includes('/dashboard')) {
             setActiveMenu('dashboard')
+        }
+
+        if (window.location.pathname.includes('/products')) {
+            setActiveMenu('products')
         }
 
     }, [])

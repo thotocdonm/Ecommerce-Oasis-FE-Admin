@@ -43,6 +43,30 @@ export const fetchProductsWithPaginate = async (query: string) => {
     else return res.error
 }
 
+export const addNewProduct = async (data: any) => {
+    let res: any = await axios.post(`products`, data)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+
+export const updateAProduct = async (data: any, id: string) => {
+    let res: any = await axios.patch(`products/${id}`, data)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+
+export const deleteAProduct = async (id: string) => {
+    let res: any = await axios.delete(`products/${id}`)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+
 export const uploadMultipleFile = async (files: File[]) => {
     let res: any = await axios.post(`files/multipleUpload`, files)
     if (res && res.data) {
@@ -62,3 +86,4 @@ export const uploadFile = async (file: any) => {
     }
     else return res.error
 }
+

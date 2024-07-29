@@ -57,7 +57,7 @@ const UserUpdateModal = (props: IProps) => {
         form.setFieldsValue(dataUpdate)
     }, [dataUpdate])
 
-    console.log(dataUpdate)
+
     return (
         <>
             <Modal

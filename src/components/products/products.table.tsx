@@ -2,12 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { Button, ColorPicker, Input, Popconfirm, Table, message } from 'antd';
 import type { PopconfirmProps, TableColumnsType, TableProps } from 'antd';
-import { deleteUser, fetchProductsWithPaginate, fetchUserWithPaginate } from '../../api/api';
+import { deleteAProduct, deleteUser, fetchProductsWithPaginate, fetchUserWithPaginate } from '../../api/api';
 import { useSearchParams } from 'react-router-dom';
 import { ClearOutlined, DeleteOutlined, EditOutlined, SearchOutlined, UserAddOutlined } from '@ant-design/icons';
 import Search from 'antd/es/input/Search';
 import ProductDetail from './product.detail';
 import ProductAddNewModal from './product.add.modal';
+import ProductUpdateModal from './product.update.modal';
 
 interface DataType {
     _id: string;
@@ -43,9 +44,9 @@ const ProductTable = () => {
     const [isAddNewModalOpen, setIsAddNewModalOpen] = useState(false);
 
     const confirm = async (id: string) => {
-        const res: IBackendRes<any> = await deleteUser(id);
+        const res: IBackendRes<any> = await deleteAProduct(id);
         if (res && res.data) {
-            message.success('Delete user success')
+            message.success('Delete product success')
             fetchProduct();
             return
         }
@@ -146,8 +147,8 @@ const ProductTable = () => {
                             }}
                         />
                         <Popconfirm
-                            title="Delete a user"
-                            // description={`Are you sure to delete user : ${record.email}`}
+                            title="Delete a product"
+                            description={`Are you sure to delete product : ${record.name}`}
                             onConfirm={() => confirm(record._id)}
                             okText="Yes"
                             cancelText="No"
@@ -174,11 +175,10 @@ const ProductTable = () => {
             setTotal(res.data.meta.total)
             setProductsData(res.data.result)
         }
-        console.log(res)
+
     }
 
     const onChange: TableProps<DataType>['onChange'] = (pagination, filters, sorter, extra) => {
-        console.log('params', pagination, filters, sorter, extra);
         if (pagination && pagination.current !== current) {
             setCurrent(pagination.current!);
         }
@@ -266,6 +266,13 @@ const ProductTable = () => {
                 isAddNewModalOpen={isAddNewModalOpen}
                 setIsAddNewModalOpen={setIsAddNewModalOpen}
                 fetchProduct={fetchProduct}
+            />
+            <ProductUpdateModal
+                isUpdateModalOpen={isUpdateModalOpen}
+                setIsUpdateModalOpen={setIsUpdateModalOpen}
+                fetchProduct={fetchProduct}
+                dataUpdate={dataUpdate}
+                setDataUpdate={setDataUpdate}
             />
         </>
     )
