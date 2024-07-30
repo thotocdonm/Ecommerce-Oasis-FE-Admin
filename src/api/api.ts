@@ -67,6 +67,18 @@ export const deleteAProduct = async (id: string) => {
     else return res.error
 }
 
+export const removeProductImage = async (name: string) => {
+    let res: any = await axios.delete(`files/remove/${name}`, {
+        headers: {
+            folder_type: 'products'
+        }
+    })
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+
 export const uploadMultipleFile = async (files: File[]) => {
     let res: any = await axios.post(`files/multipleUpload`, files)
     if (res && res.data) {

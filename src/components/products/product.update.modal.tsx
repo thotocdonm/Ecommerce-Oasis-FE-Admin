@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Button, Checkbox, Col, Collapse, Divider, Form, FormProps, GetProp, Image, Input, InputNumber, Modal, Row, Select, SelectProps, Upload, UploadFile, UploadProps, message } from 'antd';
-import { addNewProduct, createNewUser, updateAProduct, updateUser, uploadFile } from '../../api/api';
+import { addNewProduct, createNewUser, removeProductImage, updateAProduct, updateUser, uploadFile } from '../../api/api';
 import { PlusOutlined } from '@ant-design/icons';
 import { RcFile } from 'antd/es/upload';
 import { v4 as uuidv4 } from "uuid";
@@ -279,6 +279,12 @@ const ProductUpdateModal = (props: IProps) => {
 
     }
 
+    const handleRemoveFile = (info: any) => {
+        let res: any = removeProductImage(info.name)
+        const newFileList = fileList.filter(item => item.name !== info.name)
+        setFileList(newFileList)
+    }
+
     const handleBeforeUpload = (item: string) => (file: RcFile) => {
         const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
         if (!isJpgOrPng) {
@@ -340,7 +346,7 @@ const ProductUpdateModal = (props: IProps) => {
                 onOk={handleOk}
                 onCancel={handleCancel}
                 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-                okText='Add'
+                okText='Update'
             >
                 <Divider />
                 <Form
@@ -477,6 +483,7 @@ const ProductUpdateModal = (props: IProps) => {
                                             beforeUpload={handleBeforeUpload(`!${item}!`)}
                                             multiple={true}
                                             defaultFileList={itemList}
+                                            onRemove={handleRemoveFile}
                                         >
                                             {itemList.length >= 8 ? null : uploadButton}
                                         </Upload>

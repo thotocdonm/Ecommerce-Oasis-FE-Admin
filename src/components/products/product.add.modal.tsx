@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Button, Checkbox, Col, Collapse, Divider, Form, FormProps, GetProp, Image, Input, InputNumber, Modal, Row, Select, SelectProps, Upload, UploadFile, UploadProps, message } from 'antd';
-import { addNewProduct, createNewUser, updateUser, uploadFile } from '../../api/api';
+import { addNewProduct, createNewUser, removeProductImage, updateUser, uploadFile } from '../../api/api';
 import { PlusOutlined } from '@ant-design/icons';
 import { RcFile } from 'antd/es/upload';
 import { v4 as uuidv4 } from "uuid";
@@ -308,6 +308,12 @@ const ProductAddNewModal = (props: IProps) => {
         return `${name}-${color}.${extension}`
     }
 
+    const handleRemoveFile = (info: any) => {
+        let res: any = removeProductImage(info.name)
+        const newFileList = fileList.filter(item => item.name !== info.name)
+        setFileList(newFileList)
+    }
+
 
     return (
         <>
@@ -452,6 +458,7 @@ const ProductAddNewModal = (props: IProps) => {
                                             customRequest={uploadImage}
                                             beforeUpload={handleBeforeUpload(`!${item}!`)}
                                             multiple={true}
+                                            onRemove={handleRemoveFile}
                                         >
                                             {itemList.length >= 8 ? null : uploadButton}
                                         </Upload>
