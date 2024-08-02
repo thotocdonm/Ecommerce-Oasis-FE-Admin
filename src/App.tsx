@@ -8,6 +8,8 @@ import UserTable from "./components/users/user.table";
 import UsersPage from "./screens/user.screen";
 import DashboardPage from "./screens/dashboard.screen";
 import ProductsPage from "./screens/product.screen";
+import ReviewsPage from "./screens/review.screen";
+import OrdersPage from "./screens/order.screen";
 
 const router = createBrowserRouter([
   {
@@ -25,7 +27,15 @@ const router = createBrowserRouter([
       {
         path: '/products',
         element: <ProductsPage />
-      }
+      },
+      {
+        path: '/reviews',
+        element: <ReviewsPage />
+      },
+      {
+        path: '/orders',
+        element: <OrdersPage />
+      },
     ]
   },
   {

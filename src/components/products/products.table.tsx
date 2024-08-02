@@ -135,6 +135,17 @@ const ProductTable = () => {
             },
         },
         {
+            title: 'Style',
+            dataIndex: 'style',
+            render: (value, record, index) => {
+                return (
+                    <>
+                        {value}
+                    </>
+                )
+            },
+        },
+        {
             title: 'Actions',
             render: (value, record, index) => {
                 return (

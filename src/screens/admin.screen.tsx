@@ -4,13 +4,14 @@ import {
     MenuFoldOutlined,
     MenuUnfoldOutlined,
     ProductOutlined,
+    StarOutlined,
     UploadOutlined,
     UserOutlined,
     VideoCameraOutlined,
 } from '@ant-design/icons';
 import { Button, Divider, Layout, Menu, message, theme } from 'antd';
 import { Footer } from 'antd/es/layout/layout';
-import { Link, Outlet, redirect } from 'react-router-dom';
+import { Link, Outlet, redirect, useNavigate } from 'react-router-dom';
 import axios from '../api/axios.customize';
 
 const { Header, Sider, Content } = Layout;
@@ -24,8 +25,10 @@ const AdminPage = () => {
     } = theme.useToken();
     const [activeMenu, setActiveMenu] = useState<string>('');
 
+    const navigate = useNavigate();
+
     const handleLogin = async () => {
-        const data = { username: 'user@gmail.com', password: '123456' }
+        const data = { username: 'admin@gmail.com', password: 'Admin@123' }
         const res: IBackendRes<IBackendResLogin> = await axios.post('/auth/login', data);
 
         if (res && res.data) {
@@ -41,11 +44,17 @@ const AdminPage = () => {
 
     useEffect(() => {
         handleLogin();
+
     }, [])
 
 
 
     useEffect(() => {
+
+        if (window.location.pathname.endsWith('/')) {
+            navigate('/dashboard')
+        }
+
         if (window.location.pathname.includes('/users')) {
             setActiveMenu('users')
         }
@@ -57,6 +66,16 @@ const AdminPage = () => {
         if (window.location.pathname.includes('/products')) {
             setActiveMenu('products')
         }
+
+        if (window.location.pathname.includes('/reviews')) {
+            setActiveMenu('reviews')
+        }
+
+        if (window.location.pathname.includes('/orders')) {
+            setActiveMenu('orders')
+        }
+
+
 
     }, [])
 
@@ -88,6 +107,12 @@ const AdminPage = () => {
                         </Menu.Item>
                         <Menu.Item key={'products'} icon={<ProductOutlined />}>
                             <Link to={'/products'}>Products</Link>
+                        </Menu.Item>
+                        <Menu.Item key={'reviews'} icon={<StarOutlined />}>
+                            <Link to={'/reviews'}>Reviews</Link>
+                        </Menu.Item>
+                        <Menu.Item key={'orders'} icon={<StarOutlined />}>
+                            <Link to={'/orders'}>Orders</Link>
                         </Menu.Item>
                     </Menu>
                 </Sider>

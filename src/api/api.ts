@@ -99,3 +99,35 @@ export const uploadFile = async (file: any) => {
     else return res.error
 }
 
+export const fetchReviewsWithPaginate = async (query: string) => {
+    let res: any = await axios.get(`reviews/?${query}`)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+
+export const deleteAReview = async (id: string) => {
+    let res: any = await axios.delete(`reviews/${id}`)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+
+export const fetchOrdersWithPaginate = async (query: string) => {
+    let res: any = await axios.get(`orders/?${query}`)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+
+export const finishAOrder = async (id: string) => {
+    let res: any = await axios.post(`orders/${id}`)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+

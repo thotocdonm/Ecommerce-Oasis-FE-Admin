@@ -90,3 +90,50 @@ interface IProductsData {
     "__v": number
 }
 
+interface IReviewsData {
+    "_id": string,
+    "rating": 5,
+    "content": string,
+    "product":
+    {
+        "_id": string,
+        "name": string
+    }[]
+    ,
+    "createdBy": {
+        "_id": string,
+        "email": string,
+        "name": string
+    },
+    "isDeleted": boolean,
+    "createdAt": string,
+    "updatedAt": string,
+    "__v": number
+}
+
+interface IOrdersData {
+    "_id": string,
+    "user": {
+        "_id": string,
+        "name": string,
+        "email": string
+    },
+    "name": string,
+    "address": string,
+    "phone": string,
+    "price": number,
+    "status": string,
+    "detail": [
+        {
+            "productName": string,
+            "quantity": number,
+            "_id": string
+        }
+    ],
+    "isDeleted": boolean,
+    "deletedAt": null,
+    "createdAt": string,
+    "updatedAt": string,
+    "__v": number
+}
+

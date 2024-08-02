@@ -91,7 +91,7 @@ const ProductDetail = (props: IProps) => {
         {
             key: 'Sold',
             label: 'Sold',
-            children: dataDetail.quantity,
+            children: dataDetail.sold,
             span: 2
         },
         {

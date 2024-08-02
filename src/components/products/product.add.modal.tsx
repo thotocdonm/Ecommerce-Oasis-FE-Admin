@@ -4,6 +4,7 @@ import { addNewProduct, createNewUser, removeProductImage, updateUser, uploadFil
 import { PlusOutlined } from '@ant-design/icons';
 import { RcFile } from 'antd/es/upload';
 import { v4 as uuidv4 } from "uuid";
+import { colorOptions, sizeOptions, styleOptions, typeOptions } from '../../utils/select.options';
 
 interface IProps {
     isAddNewModalOpen: boolean,
@@ -39,7 +40,8 @@ const ProductAddNewModal = (props: IProps) => {
     const handleCancel = () => {
         setIsAddNewModalOpen(false);
         form.resetFields();
-        setFileList([])
+        setFileList([]);
+        setSelectedColors([])
     };
 
     type FieldType = {
@@ -54,97 +56,6 @@ const ProductAddNewModal = (props: IProps) => {
 
     };
 
-    const sizeOptions: SelectProps['options'] = [
-        {
-            label: "S",
-            value: "S",
-        },
-        {
-            label: "M",
-            value: "M",
-        },
-        {
-            label: "L",
-            value: "L",
-        },
-        {
-            label: "XL",
-            value: "XL",
-        },
-        {
-            label: "XXL",
-            value: "XXL",
-        },
-        {
-            label: "XXXL",
-            value: "XXXL",
-        }
-    ];
-
-    const styleOptions: SelectProps['options'] = [
-        {
-            label: 'Casual',
-            value: 'Casual'
-        },
-        {
-            label: 'Formal',
-            value: 'Formal'
-        },
-        {
-            label: 'Party',
-            value: 'Party'
-        },
-        {
-            label: 'Gym',
-            value: 'Gym'
-        },
-    ]
-
-    const typeOptions: SelectProps['options'] = [
-        {
-            label: 'T-shirt',
-            value: 'T-shirt'
-        },
-        {
-            label: 'Short',
-            value: 'Short'
-        },
-        {
-            label: 'Shirt',
-            value: 'Shirt'
-        },
-        {
-            label: 'Hoodie',
-            value: 'Hoodie'
-        },
-        {
-            label: 'Jeans',
-            value: 'Jeans'
-        },
-    ]
-
-    const colorOptions: SelectProps['options'] = [
-        {
-            label: 'Red',
-            value: 'Red//#FF0000'
-        },
-        {
-            label: 'Blue',
-            value: 'Blue//#0000FF'
-        },
-        {
-            label: 'Green',
-            value: 'Green//#00FF00'
-        },
-        {
-            label: 'Black',
-            value: 'Black//#000000'
-        },
-        {
-            label: 'White',
-            value: 'White//#FFFFFF'
-        },
-    ]
 
     const buildColorData = (colorsArray: string[], fileList: UploadFile[]) => {
         // Parse color names and codes
@@ -289,9 +200,9 @@ const ProductAddNewModal = (props: IProps) => {
             message.error('You can only upload JPG/PNG file!');
             return isJpgOrPng;
         }
-        const isLt2M = file.size / 1024 / 1024 < 2;
+        const isLt2M = file.size / 1024 / 1024 < 5;
         if (!isLt2M) {
-            message.error('Image must smaller than 2MB!');
+            message.error('Image must smaller than 5MB!');
             return isJpgOrPng && isLt2M;
         }
 
