@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {
+    ContactsOutlined,
     DashboardOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
+    OrderedListOutlined,
     ProductOutlined,
     StarOutlined,
     UploadOutlined,
@@ -30,7 +32,7 @@ const AdminPage = () => {
     const handleLogin = async () => {
         const data = { username: 'admin@gmail.com', password: 'Admin@123' }
         const res: IBackendRes<IBackendResLogin> = await axios.post('/auth/login', data);
-
+        console.log(res)
         if (res && res.data) {
             localStorage.setItem('access_token', res.data.access_token);
             message.success('Login success')
@@ -75,6 +77,10 @@ const AdminPage = () => {
             setActiveMenu('orders')
         }
 
+        if (window.location.pathname.includes('/subscribers')) {
+            setActiveMenu('subscribers')
+        }
+
 
 
     }, [])
@@ -111,8 +117,11 @@ const AdminPage = () => {
                         <Menu.Item key={'reviews'} icon={<StarOutlined />}>
                             <Link to={'/reviews'}>Reviews</Link>
                         </Menu.Item>
-                        <Menu.Item key={'orders'} icon={<StarOutlined />}>
+                        <Menu.Item key={'orders'} icon={<OrderedListOutlined />}>
                             <Link to={'/orders'}>Orders</Link>
+                        </Menu.Item>
+                        <Menu.Item key={'subscribers'} icon={<ContactsOutlined />}>
+                            <Link to={'/subscribers'}>Subscribers</Link>
                         </Menu.Item>
                     </Menu>
                 </Sider>

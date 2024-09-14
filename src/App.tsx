@@ -10,6 +10,7 @@ import DashboardPage from "./screens/dashboard.screen";
 import ProductsPage from "./screens/product.screen";
 import ReviewsPage from "./screens/review.screen";
 import OrdersPage from "./screens/order.screen";
+import SubscribersPage from "./screens/subscribers.screen";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: '/orders',
         element: <OrdersPage />
+      },
+      {
+        path: '/subscribers',
+        element: <SubscribersPage />
       },
     ]
   },

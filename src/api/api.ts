@@ -131,3 +131,35 @@ export const finishAOrder = async (id: string) => {
     else return res.error
 }
 
+export const fetchSubscribersWithPaginate = async (query: string) => {
+    let res: any = await axios.get(`subscribers/?${query}`)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+
+export const deleteASubscriber = async (id: string) => {
+    let res: any = await axios.delete(`subscribers/${id}`)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+
+export const getTotalPrice = async () => {
+    let res: any = await axios.get(`orders/total-price`)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+
+export const getTotalOrders = async () => {
+    let res: any = await axios.get(`orders/total-orders`)
+    if (res && res.data) {
+        return res
+    }
+    else return res.error
+}
+

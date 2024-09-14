@@ -137,3 +137,13 @@ interface IOrdersData {
     "__v": number
 }
 
+interface ISubscribersData {
+    "_id": string,
+    "email": string,
+    "deletedAt": null,
+    "isDeleted": boolean,
+    "createdAt": string,
+    "updatedAt": string,
+    "__v": number
+}
+
